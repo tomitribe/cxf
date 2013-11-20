@@ -41,7 +41,6 @@ import org.junit.Test;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class AtomPojoProviderTest extends Assert {
 
     private ClassPathXmlApplicationContext ctx;
@@ -217,6 +216,7 @@ public class AtomPojoProviderTest extends Assert {
         assertTrue("a".equals(list.get(0).getName()) || "a".equals(list.get(1).getName()));
         assertTrue("b".equals(list.get(0).getName()) || "b".equals(list.get(1).getName()));
     }
+
     @Test
     public void testReadEntryNoContent() throws Exception {
         /** A sample entry without content. */
@@ -280,6 +280,7 @@ public class AtomPojoProviderTest extends Assert {
     public static class JaxbDataType {
         // no data
     }
+
 
     private Entry getEntry(List<Entry> entries, String title) {
         for (Entry e : entries) {
