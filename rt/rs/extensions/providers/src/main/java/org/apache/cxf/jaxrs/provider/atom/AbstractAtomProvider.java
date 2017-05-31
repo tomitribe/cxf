@@ -40,7 +40,6 @@ import org.apache.abdera.parser.Parser;
 import org.apache.abdera.parser.ParserOptions;
 import org.apache.abdera.writer.Writer;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.jaxrs.utils.ExceptionUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public abstract class AbstractAtomProvider<T extends Element>
