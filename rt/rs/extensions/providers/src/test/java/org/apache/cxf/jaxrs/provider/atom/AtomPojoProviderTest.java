@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.lang.annotation.Annotation;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 
 import org.junit.Assert;
