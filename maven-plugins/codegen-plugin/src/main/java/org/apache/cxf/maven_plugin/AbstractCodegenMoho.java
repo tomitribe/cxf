@@ -207,9 +207,9 @@ public abstract class AbstractCodegenMoho extends AbstractMojo {
      * Sets the Java executable to use when fork parameter is <code>true</code>.
      *
      * @parameter
+     * @readonly
      * @since 2.4
      */
-    @Parameter
     private String javaExecutable;
     /**
      * The remote repositories used as specified in your POM.
@@ -229,14 +229,10 @@ public abstract class AbstractCodegenMoho extends AbstractMojo {
     private ArtifactRepositoryFactory artifactRepositoryFactory;
     /**
      * The toolchain manager.
+     * 
+     * @component
+     * @readonly
      */
-    @Component
-    private ToolchainManager toolchainManager;
-
-    /**
-     * The toolchain manager.
-     */
-    @Component
     private ToolchainManager toolchainManager;
 
     /**
