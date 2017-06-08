@@ -128,7 +128,7 @@ public class DefaultSTSTokenCacher implements STSTokenCacher {
         }
         Map<String, Object> properties = cachedToken.getProperties();
         if (properties == null) {
-            properties = new HashMap<>();
+            properties = new HashMap<String, Object>();
             cachedToken.setProperties(properties);
         }
         properties.put(cacheKey, secTokenId);
