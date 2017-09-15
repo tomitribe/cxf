@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf</artifactId>
-    <version>2.6.16-TT.2-SNAPSHOT</version>
+    <version>2.6.18-SNAPSHOT</version>
     <name>Apache CXF</name>
     <description>Apache CXF is an open-source services framework that aids in 
     the development of services using front-end programming APIs, like JAX-WS 
@@ -33,8 +33,8 @@
     <scm>
         <connection>scm:git:http://git-wip-us.apache.org/repos/asf/cxf.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/cxf.git</developerConnection>
-      <tag>cxf-2.6.16-TT.2-SNAPSHOT</tag>
-  </scm>
+        <tag>cxf-2.6.17-SNAPSHOT</tag>
+    </scm>
     <issueManagement>
         <system>jira</system>
         <url>https://issues.apache.org/jira/browse/CXF</url>
@@ -231,6 +231,8 @@
                             <artifactId>maven-compiler-plugin</artifactId>
                             <version>3.1</version>
                             <configuration>
+								<source>${cxf.jdk.version}</source>
+								<target>${cxf.jdk.version}</target>
                                 <maxmem>256M</maxmem>
                                 <fork>${cxf.compiler.fork}</fork>
                             </configuration>
@@ -470,11 +472,13 @@
                     <artifactId>maven-jibx-plugin</artifactId>
                     <version>1.3.1</version>
                 </plugin>
+                <!--
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-toolchains-plugin</artifactId>
                     <version>1.1</version>
                 </plugin>
+                -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>properties-maven-plugin </artifactId>
@@ -528,6 +532,7 @@
                     <version>2.9.1</version>
                     <configuration>
                         <attach>true</attach>
+                        <source>1.5</source>
                         <quiet>true</quiet>
                         <bottom>Apache CXF</bottom>
                         <javadocVersion>1.5</javadocVersion>
@@ -552,6 +557,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                     <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
                         <maxmem>256M</maxmem>
                         <fork>${cxf.compiler.fork}</fork>
                         <encoding>UTF-8</encoding>
@@ -697,6 +704,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-toolchains-plugin</artifactId>
@@ -716,6 +724,7 @@
                     </toolchains>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 
