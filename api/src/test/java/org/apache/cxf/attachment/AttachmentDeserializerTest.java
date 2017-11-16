@@ -158,8 +158,8 @@ public class AttachmentDeserializerTest extends Assert {
         assertTrue(out.toString().startsWith("<env:Envelope"));
         
         // try streaming a character off the wire
-        assertTrue(attIs.read() == '/');
-        assertTrue(attIs.read() == '9');
+        assertEquals(255, attIs.read());
+        assertEquals(216, (char)attIs.read());
         
 //        Attachment invalid = atts.get("INVALID");
 //        assertNull(invalid.getDataHandler().getInputStream());
@@ -202,8 +202,8 @@ public class AttachmentDeserializerTest extends Assert {
         assertTrue(out.toString().startsWith("<env:Envelope"));
 
         // try streaming a character off the wire
-        assertTrue(attIs.read() == '/');
-        assertTrue(attIs.read() == '9');
+        assertEquals(255, attIs.read());
+        assertEquals(216, (char)attIs.read());
 
 //        Attachment invalid = atts.get("INVALID");
 //        assertNull(invalid.getDataHandler().getInputStream());

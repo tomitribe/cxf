@@ -41,6 +41,7 @@ public class MultipartServer extends AbstractBusTestServerBase {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(AttachmentDeserializer.ATTACHMENT_MAX_SIZE, String.valueOf(1024 * 10));
         props.put(JAXRSUtils.DEFAULT_PROVIDERS_FOR_SIMPLE_TYPES, "true");
+        props.put(AttachmentDeserializer.ATTACHMENT_MAX_HEADER_SIZE, String.valueOf(400));
         sf.setProperties(props);
         //default lifecycle is per-request, change it to singleton
         sf.setResourceProvider(MultipartStore.class,

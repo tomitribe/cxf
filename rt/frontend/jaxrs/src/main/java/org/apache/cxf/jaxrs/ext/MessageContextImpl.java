@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import javax.mail.internet.InternetHeaders;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +45,9 @@ import javax.ws.rs.ext.Providers;
 import org.apache.cxf.attachment.AttachmentDeserializer;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
+import org.apache.cxf.attachment.HeaderSizeExceededException;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.io.CacheSizeExceededException;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -75,6 +77,8 @@ public class MessageContextImpl implements MessageContext {
                 return createAttachments(key.toString());
             } catch (CacheSizeExceededException e) {
                 throw new WebApplicationException(413);
+            } catch (HeaderSizeExceededException e) {
+                throw new WebApplicationException(e, 413);
             }
         }
         if (keyValue.equals("WRITE-" + Message.ATTACHMENTS)) {
@@ -254,9 +258,12 @@ public class MessageContextImpl implements MessageContext {
     
         List<Attachment> newAttachments = new LinkedList<Attachment>();
         try {
+            Map<String, List<String>> headers
+                = CastUtils.cast((Map<?, ?>)inMessage.get(AttachmentDeserializer.ATTACHMENT_PART_HEADERS));
+
             Attachment first = new Attachment(AttachmentUtil.createAttachment(
                                      inMessage.getContent(InputStream.class), 
-                                     (InternetHeaders)inMessage.get(InternetHeaders.class.getName())),
+                                     headers),
                                      new ProvidersImpl(inMessage));
             newAttachments.add(first);
         } catch (IOException ex) {
