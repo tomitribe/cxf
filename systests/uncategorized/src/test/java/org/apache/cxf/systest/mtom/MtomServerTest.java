@@ -64,7 +64,7 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
         createStaticBus();
         testUtilities.setBus(getStaticBus());
     }
-    
+
     @Test
     public void testMtomRequest() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
@@ -122,9 +122,12 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
 
         Attachment inAtt = attachments.iterator().next();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        IOUtils.copy(inAtt.getDataHandler().getInputStream(), out);
-        out.close();
-        assertEquals(37448, out.size());
+        try {
+            IOUtils.copy(inAtt.getDataHandler().getInputStream(), out);
+            assertEquals(27364, out.size());
+        } finally {
+            out.close();
+        }
     }
 
     @Test
@@ -168,11 +171,15 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
             throw new RuntimeException("Could not find resource " + "request");
         }
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        IOUtils.copy(is, bout);
-        String s = bout.toString("UTF-8");
-        s = s.replaceAll(":9036/", ":" + PORT2 + "/");
+        try {
+            IOUtils.copy(is, bout);
+            String s = bout.toString("UTF-8");
+            s = s.replaceAll(":9036/", ":" + PORT2 + "/");
 
-        os.write(s.getBytes("UTF-8"));
+            os.write(s.getBytes("UTF-8"));
+        } finally {
+            bout.close();
+        }
         os.flush();
         is.close();
         os.close();
@@ -191,11 +198,14 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
 
         Attachment inAtt = attachments.iterator().next();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        IOUtils.copy(inAtt.getDataHandler().getInputStream(), out);
-        out.close();
-        assertTrue("Wrong size: " + out.size()
-                   + "\n" + out.toString(),
-                   out.size() > 970 && out.size() < 1020);
+        try {
+            IOUtils.copy(inAtt.getDataHandler().getInputStream(), out);
+            assertTrue("Wrong size: " + out.size()
+                       + "\n" + out.toString(),
+                       out.size() > 970 && out.size() < 1020);
+        } finally {
+            out.close();
+        }
         unregisterServStatic("http://localhost:" + PORT2 + "/policy.xsd");
 
     }
@@ -204,7 +214,7 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
         Bus bus = getStaticBus();
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
         DestinationFactory df = dfm
-            .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
+                .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
 
         EndpointInfo ei = new EndpointInfo();
         ei.setAddress(add);
@@ -218,11 +228,11 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
      * Serve static file
      */
     private void servStatic(final URL resource,
-                                   final String add) throws Exception {
+                            final String add) throws Exception {
         Bus bus = getStaticBus();
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
         DestinationFactory df = dfm
-            .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
+                .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
 
         EndpointInfo ei = new EndpointInfo();
         ei.setAddress(add);
@@ -239,6 +249,7 @@ public class MtomServerTest extends AbstractBusClientServerTestBase {
                     Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
 
                     MessageImpl res = new MessageImpl();
+                    ex.setOutMessage(res);
                     res.put(Message.CONTENT_TYPE, "text/xml");
                     backChannel.prepare(res);
 
