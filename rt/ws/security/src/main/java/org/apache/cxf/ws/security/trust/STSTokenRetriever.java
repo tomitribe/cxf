@@ -19,6 +19,8 @@
 
 package org.apache.cxf.ws.security.trust;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.rt.security.utils.SecurityUtils;
@@ -37,6 +40,7 @@ import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.apache.wss4j.common.util.XMLUtils;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.policy.model.Trust10;
 import org.apache.wss4j.policy.model.Trust13;
@@ -348,15 +352,41 @@ public final class STSTokenRetriever {
         return null;
     }
 
+    // Get an id from the token that is unique to that token
     private static String getIdFromToken(Element token) {
         if (token != null) {
-            // Try to find the "Id" on the token.
-            if (token.hasAttributeNS(WSConstants.WSU_NS, "Id")) {
-                return token.getAttributeNS(WSConstants.WSU_NS, "Id");
-            } else if (token.hasAttributeNS(null, "ID")) {
+            // For SAML tokens get the ID/AssertionID
+            if ("Assertion".equals(token.getLocalName())
+                    && WSConstants.SAML2_NS.equals(token.getNamespaceURI())) {
                 return token.getAttributeNS(null, "ID");
-            } else if (token.hasAttributeNS(null, "AssertionID")) {
+            } else if ("Assertion".equals(token.getLocalName())
+                    && WSConstants.SAML_NS.equals(token.getNamespaceURI())) {
                 return token.getAttributeNS(null, "AssertionID");
+            }
+
+            // For UsernameTokens get the username
+            if (WSConstants.USERNAME_TOKEN_LN.equals(token.getLocalName())
+                    && WSConstants.WSSE_NS.equals(token.getNamespaceURI())) {
+                Element usernameElement =
+                        XMLUtils.getDirectChildElement(token, WSConstants.USERNAME_LN, WSConstants.WSSE_NS);
+                if (usernameElement != null) {
+                    return XMLUtils.getElementText(usernameElement);
+                }
+            }
+
+            // For BinarySecurityTokens take the hash of the value
+            if (WSConstants.BINARY_TOKEN_LN.equals(token.getLocalName())
+                    && WSConstants.WSSE_NS.equals(token.getNamespaceURI())) {
+                String text = XMLUtils.getElementText(token);
+                if (text != null && !"".equals(text)) {
+                    try {
+                        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                        byte[] bytes = digest.digest(text.getBytes());
+                        return Base64Utility.encode(bytes);
+                    } catch (NoSuchAlgorithmException e) {
+                        // SHA-256 must be supported so not going to happen...
+                    }
+                }
             }
         }
         return "";
