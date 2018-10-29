@@ -31,11 +31,13 @@ import org.apache.hello_world.GreeterImpl;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * 
  */
+@Ignore
 public class UDPTransportTest extends AbstractBusClientServerTestBase {
     static final String PORT = allocatePort(UDPTransportTest.class);
     private static Server server; 

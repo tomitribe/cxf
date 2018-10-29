@@ -50,12 +50,14 @@ import org.apache.cxf.ws.discovery.wsdl.ResolveMatchType;
 import org.apache.cxf.ws.discovery.wsdl.ScopesType;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
 /**
  * 
  */
+@Ignore
 public final class WSDiscoveryClientTest {
     public static final String PORT = TestUtil.getPortNumber(WSDiscoveryClientTest.class);
    

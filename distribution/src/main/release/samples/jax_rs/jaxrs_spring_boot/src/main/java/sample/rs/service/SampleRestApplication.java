@@ -44,14 +44,16 @@ public class SampleRestApplication {
     public ServletRegistrationBean servletRegistrationBean(ApplicationContext context) {
         return new ServletRegistrationBean(new CXFServlet(), "/services/*");
     }
- 
-    
+
+
     @Bean
     public Server rsServer() {
         JAXRSServerFactoryBean endpoint = new JAXRSServerFactoryBean();
-        endpoint.setServiceBeans(Arrays.asList(new HelloService(), new HelloService2()));
-        endpoint.setAddress("/helloservice");
+        endpoint.setBus(bus);
+        endpoint.setServiceBeans(Arrays.<Object>asList(new HelloServiceImpl1(), new HelloServiceImpl2()));
+        endpoint.setAddress("/");
+        endpoint.setFeatures(Arrays.asList(new Swagger2Feature()));
         return endpoint.create();
     }
- 
+
 }
