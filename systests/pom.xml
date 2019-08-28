@@ -46,6 +46,7 @@
         <module>ws-security-examples</module>
         <module>rs-security</module>
         <module>wsdl_maven</module>
+        <module>ldap</module>
     </modules>
 
 </project>

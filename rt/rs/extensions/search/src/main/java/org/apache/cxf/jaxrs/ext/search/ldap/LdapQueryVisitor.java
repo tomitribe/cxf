@@ -30,57 +30,60 @@ import org.apache.cxf.jaxrs.ext.search.visitor.AbstractUntypedSearchConditionVis
  */
 public class LdapQueryVisitor<T> extends AbstractUntypedSearchConditionVisitor<T, String> {
 
+    private boolean encodeQueryValues = true;
+
     public LdapQueryVisitor() {
         this(Collections.<String, String>emptyMap());
     }
-    
+
     public LdapQueryVisitor(Map<String, String> fieldMap) {
         super(fieldMap);
     }
-    
+
     public void visit(SearchCondition<T> sc) {
-    
+
         StringBuilder sb = getStringBuilder();
         if (sb == null) {
             sb = new StringBuilder();
         }
-        
+
         PrimitiveStatement statement = sc.getStatement();
         if (statement != null) {
             if (statement.getProperty() != null) {
                 String name = getRealPropertyName(statement.getProperty());
                 String rvalStr = getPropertyValue(name, statement.getValue());
                 validatePropertyValue(name, rvalStr);
-                
-                sb.append("(");
+
+                sb.append('(');
                 if (sc.getConditionType() == ConditionType.NOT_EQUALS) {
-                    sb.append("!");
+                    sb.append('!');
                 }
-                
+
                 String ldapOperator = conditionTypeToLdapOperator(sc.getConditionType());
-                sb.append(name).append(ldapOperator).append(rvalStr);
-                
-                sb.append(")");
+                String encodedRValStr = encodeQueryValues ? Util.doRFC2254Encoding(rvalStr) : rvalStr;
+                sb.append(name).append(ldapOperator).append(encodedRValStr);
+
+                sb.append(')');
             }
         } else {
-            sb.append("(");
+            sb.append('(');
             if (sc.getConditionType() == ConditionType.AND) {
-                sb.append("&");
+                sb.append('&');
             } else {
-                sb.append("|");
+                sb.append('|');
             }
-            
+
             for (SearchCondition<T> condition : sc.getSearchConditions()) {
                 saveStringBuilder(sb);
                 condition.accept(this);
                 sb = getStringBuilder();
             }
-            sb.append(")");
+            sb.append(')');
         }
         saveStringBuilder(sb);
     }
-    
-    
+
+
     public static String conditionTypeToLdapOperator(ConditionType ct) {
         String op;
         switch (ct) {
@@ -101,5 +104,13 @@ public class LdapQueryVisitor<T> extends AbstractUntypedSearchConditionVisitor<T
             throw new RuntimeException(msg);
         }
         return op;
+    }
+
+    public boolean isEncodeQueryValues() {
+        return encodeQueryValues;
+    }
+
+    public void setEncodeQueryValues(boolean encodeQueryValues) {
+        this.encodeQueryValues = encodeQueryValues;
     }
 }

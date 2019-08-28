@@ -20,7 +20,6 @@ package org.apache.cxf.attachment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,7 +38,7 @@ public final class Rfc5987Util {
     }
 
     public static String encode(final String s) throws UnsupportedEncodingException {
-        return encode(s, StandardCharsets.UTF_8.name());
+        return encode(s, "UTF-8");
     }
 
     // http://stackoverflow.com/questions/11302361/ (continued next line)
