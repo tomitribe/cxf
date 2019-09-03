@@ -20,7 +20,6 @@ package org.apache.cxf.attachment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import javax.activation.DataSource;
 import javax.xml.parsers.SAXParser;
@@ -50,7 +50,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AttachmentDeserializerTest extends Assert {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+public class AttachmentDeserializerTest {
     
     private MessageImpl msg;
     
@@ -458,7 +464,7 @@ public class AttachmentDeserializerTest extends Assert {
             assertEquals("ABCD" + count++, s);
         }
     }
-    
+
     private String getString(InputStream ins) throws Exception {
         ByteArrayOutputStream bout = new ByteArrayOutputStream(100);
         byte b[] = new byte[100];
@@ -650,5 +656,92 @@ public class AttachmentDeserializerTest extends Assert {
         assertEquals(1249, count);
         assertEquals(-1, ins.read(new byte[1000], 100, 600));
     }
+
+    @Test
+    public void testManyAttachments() throws Exception {
+        StringBuilder sb = new StringBuilder(1000);
+        sb.append("SomeHeader: foo\n")
+            .append("------=_Part_34950_1098328613.1263781527359\n")
+            .append("Content-Type: text/xml; charset=UTF-8\n")
+            .append("Content-Transfer-Encoding: binary\n")
+            .append("Content-Id: <318731183421.1263781527359.IBM.WEBSERVICES@auhpap02>\n")
+            .append('\n')
+            .append("<envelope/>\n");
+
+        // Add many attachments
+        IntStream.range(0, 100000).forEach(i -> {
+            sb.append("------=_Part_34950_1098328613.1263781527359\n")
+                .append("Content-Type: text/xml\n")
+                .append("Content-Transfer-Encoding: binary\n")
+                .append("Content-Id: <b86a5f2d-e7af-4e5e-b71a-9f6f2307cab0>\n")
+                .append('\n')
+                .append("<message>\n")
+                .append("------=_Part_34950_1098328613.1263781527359--\n");
+        });
+
+        msg = new MessageImpl();
+        msg.setContent(InputStream.class, new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
+        msg.put(Message.CONTENT_TYPE, "multipart/related");
+        AttachmentDeserializer ad = new AttachmentDeserializer(msg);
+        ad.initializeAttachments();
+
+        // Force it to load the attachments
+        try {
+            msg.getAttachments().size();
+            fail("Failure expected on too many attachments");
+        } catch (RuntimeException ex) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testChangingMaxAttachmentCount() throws Exception {
+        StringBuilder sb = new StringBuilder(1000);
+        sb.append("SomeHeader: foo\n")
+            .append("------=_Part_34950_1098328613.1263781527359\n")
+            .append("Content-Type: text/xml; charset=UTF-8\n")
+            .append("Content-Transfer-Encoding: binary\n")
+            .append("Content-Id: <318731183421.1263781527359.IBM.WEBSERVICES@auhpap02>\n")
+            .append('\n')
+            .append("<envelope/>\n");
+
+        // Add many attachments
+        IntStream.range(0, 40).forEach(i -> {
+            sb.append("------=_Part_34950_1098328613.1263781527359\n")
+                .append("Content-Type: text/xml\n")
+                .append("Content-Transfer-Encoding: binary\n")
+                .append("Content-Id: <b86a5f2d-e7af-4e5e-b71a-9f6f2307cab0>\n")
+                .append('\n')
+                .append("<message>\n")
+                .append("------=_Part_34950_1098328613.1263781527359--\n");
+        });
+
+        msg = new MessageImpl();
+        msg.put(AttachmentDeserializer.ATTACHMENT_MAX_COUNT, "30");
+        msg.setContent(InputStream.class, new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
+        msg.put(Message.CONTENT_TYPE, "multipart/related");
+        AttachmentDeserializer ad = new AttachmentDeserializer(msg);
+        ad.initializeAttachments();
+
+        // Force it to load the attachments
+        try {
+            msg.getAttachments().size();
+            fail("Failure expected on too many attachments");
+        } catch (RuntimeException ex) {
+            // expected
+        }
+
+        // Now we'll allow it
+        msg = new MessageImpl();
+        msg.put(AttachmentDeserializer.ATTACHMENT_MAX_COUNT, "60");
+        msg.setContent(InputStream.class, new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
+        msg.put(Message.CONTENT_TYPE, "multipart/related");
+        ad = new AttachmentDeserializer(msg);
+        ad.initializeAttachments();
+
+        // Force it to load the attachments
+        assertEquals(40, msg.getAttachments().size());
+    }
+
 }
 
