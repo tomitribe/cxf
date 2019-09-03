@@ -30,12 +30,12 @@
     <name>Apache CXF LDAP Integration System Tests</name>
     <description>Apache CXF LDAP Integration System Tests</description>
     <url>https://cxf.apache.org</url>
-    
+
     <properties>
         <cxf.module.name>org.apache.cxf.systests.ldap</cxf.module.name>
         <cxf.apacheds.version>2.0.0.AM25</cxf.apacheds.version>
     </properties>
-    
+
     <build>
         <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
         <testResources>
@@ -134,12 +134,6 @@
             <groupId>org.apache.cxf.services.sts</groupId>
             <artifactId>cxf-services-sts-core</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-testutils</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
