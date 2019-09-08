@@ -29,11 +29,11 @@
     <url>https://cxf.apache.org</url>
     <packaging>pom</packaging>
     <scm>
-        <connection>scm:git:https://gitbox.apache.org/repos/asf/cxf.git</connection>
-        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/cxf.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=cxf.git;a=summary</url>
+        <connection>scm:git:git@github.com:tomitribe/cxf.git</connection>
+        <developerConnection>scm:git:git@github.com:tomitribe/cxf.git</developerConnection>
+        <url>scm:git:git@github.com:tomitribe/cxf.git</url>
         <tag>cxf-3.3.4</tag>
-    </scm>
+  </scm>
     <issueManagement>
         <system>jira</system>
         <url>https://issues.apache.org/jira/browse/CXF</url>
@@ -47,17 +47,18 @@
         <site.deploy.url>scp://people.apache.org/www/cxf.apache.org/maven-site</site.deploy.url>
         <maven-owasp-plugin-version>5.2.2</maven-owasp-plugin-version>
     </properties>
+
     <distributionManagement>
         <repository>
-            <id>apache.releases.https</id>
-            <name>Apache Release Distribution Repository</name>
-            <url>https://repository.apache.org/service/local/staging/deploy/maven2</url>
+            <id>tomitribe.releases.https</id>
+            <name>Tomitribe Release Distribution Repository</name>
+            <url>https://repository.tomitribe.com/service/local/staging/deploy/maven2</url>
         </repository>
+
         <snapshotRepository>
-            <id>apache.snapshots.https</id>
-            <name>Apache Development Snapshot Repository</name>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-            <!--uniqueVersion>false</uniqueVersion-->
+            <id>tomitribe.snapshots.https</id>
+            <name>Tomitribe Development Snapshot Repository</name>
+            <url>https://repository.tomitribe.com/content/repositories/snapshots-tomitribe</url>
         </snapshotRepository>
         <site>
             <id>apache.cxf.site</id>
@@ -459,9 +460,9 @@
                     <version>2.5.3</version>
                     <configuration>
                         <useReleaseProfile>false</useReleaseProfile>
-                        <preparationGoals>clean install</preparationGoals>
+                        <preparationGoals>clean</preparationGoals>
                         <goals>deploy</goals>
-                        <arguments>-Prelease,deploy</arguments>
+                        <arguments>-Prelease,deploy -DskipTests</arguments>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                     </configuration>
                 </plugin>
