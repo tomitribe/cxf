@@ -521,7 +521,7 @@
                     <version>2.5</version>
                     <configuration>
                         <useReleaseProfile>false</useReleaseProfile>
-                        <preparationGoals>clean install</preparationGoals>
+                        <preparationGoals>clean</preparationGoals>
                         <goals>deploy</goals>
                         <arguments>-Prelease,deploy</arguments>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
