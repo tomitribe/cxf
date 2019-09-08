@@ -31,11 +31,10 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:https://github.com/tomitribe/cxf.git</connection>
-        <developerConnection>scm:git:https://github.com/tomitribe/cxf.git</developerConnection>
-        <url>scm:git:https://github.com/tomitribe/cxf.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <connection>scm:git:git@github.com:tomitribe/cxf.git</connection>
+        <developerConnection>scm:git:git@github.com:tomitribe/cxf.git</developerConnection>
+        <url>scm:git:git@github.com:tomitribe/cxf.git</url>
+    </scm>
     <issueManagement>
         <system>jira</system>
         <url>https://issues.apache.org/jira/browse/CXF</url>
