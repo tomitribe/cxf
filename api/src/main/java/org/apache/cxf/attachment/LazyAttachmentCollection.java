@@ -37,12 +37,10 @@ public class LazyAttachmentCollection
     
     private AttachmentDeserializer deserializer;
     private final List<Attachment> attachments = new ArrayList<Attachment>();
-    private final int maxAttachmentCount;
     
-    public LazyAttachmentCollection(AttachmentDeserializer deserializer, int maxAttachmentCount) {
+    public LazyAttachmentCollection(AttachmentDeserializer deserializer) {
         super();
         this.deserializer = deserializer;
-        this.maxAttachmentCount = maxAttachmentCount;
     }
 
     public List<Attachment> getLoadedAttachments() {
@@ -52,13 +50,8 @@ public class LazyAttachmentCollection
     private void loadAll() {
         try {
             Attachment a = deserializer.readNext();
-            int count = 0;
             while (a != null) {
                 attachments.add(a);
-                count++;
-                if (count > maxAttachmentCount) {
-                    throw new IOException("The message contains more attachments than are permitted");
-                }
                 a = deserializer.readNext();
             }
         } catch (IOException e) {
