@@ -18,10 +18,7 @@
  */
 package org.apache.cxf.attachment;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 import javax.activation.DataSource;
 import javax.xml.parsers.SAXParser;
@@ -668,8 +664,8 @@ public class AttachmentDeserializerTest {
             .append('\n')
             .append("<envelope/>\n");
 
-        // Add many attachments
-        IntStream.range(0, 100000).forEach(i -> {
+
+        for (int i = 0; i < 100000; i++) {
             sb.append("------=_Part_34950_1098328613.1263781527359\n")
                 .append("Content-Type: text/xml\n")
                 .append("Content-Transfer-Encoding: binary\n")
@@ -677,7 +673,7 @@ public class AttachmentDeserializerTest {
                 .append('\n')
                 .append("<message>\n")
                 .append("------=_Part_34950_1098328613.1263781527359--\n");
-        });
+        }
 
         msg = new MessageImpl();
         msg.setContent(InputStream.class, new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
@@ -706,7 +702,7 @@ public class AttachmentDeserializerTest {
             .append("<envelope/>\n");
 
         // Add many attachments
-        IntStream.range(0, 40).forEach(i -> {
+        for (int i = 0; i < 40; i++) {
             sb.append("------=_Part_34950_1098328613.1263781527359\n")
                 .append("Content-Type: text/xml\n")
                 .append("Content-Transfer-Encoding: binary\n")
@@ -714,7 +710,7 @@ public class AttachmentDeserializerTest {
                 .append('\n')
                 .append("<message>\n")
                 .append("------=_Part_34950_1098328613.1263781527359--\n");
-        });
+        }
 
         msg = new MessageImpl();
         msg.put(AttachmentDeserializer.ATTACHMENT_MAX_COUNT, "30");
