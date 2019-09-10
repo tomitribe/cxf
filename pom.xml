@@ -29,9 +29,9 @@
     <url>http://cxf.apache.org</url>
     <packaging>pom</packaging>
     <scm>
-        <connection>scm:git:https://github.com/tomitribe/cxf.git</connection>
-        <developerConnection>scm:git:https://github.com/tomitribe/cxf.git</developerConnection>
-        <url>scm:git:https://github.com/tomitribe/cxf.git</url>
+        <connection>scm:git:git@github.com:tomitribe/cxf.git</connection>
+        <developerConnection>scm:git:git@github.com:tomitribe/cxf.git</developerConnection>
+        <url>scm:git:git@github.com:tomitribe/cxf.git</url>
         <tag>cxf-3.1.6-TT.3</tag>
     </scm>
     <issueManagement>
