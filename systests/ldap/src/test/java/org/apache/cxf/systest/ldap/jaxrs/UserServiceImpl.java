@@ -103,8 +103,8 @@ public class UserServiceImpl implements UserService {
 
         Map<String, Attribute> ldapAttributes = null;
 
-        AttributesMapper<Map<String, Attribute>> mapper =
-            new AttributesMapper<Map<String, Attribute>>() {
+        AttributesMapper mapper =
+            new AttributesMapper() {
             public Map<String, Attribute> mapFromAttributes(Attributes attrs) throws NamingException {
                 Map<String, Attribute> map = new HashMap<>();
                 NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
