@@ -40,6 +40,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.rs.security.jose.common.JoseConstants;
+import org.apache.cxf.rs.security.jose.common.JoseException;
 import org.apache.cxf.rs.security.jose.common.JoseUtils;
 import org.apache.cxf.rs.security.jose.common.KeyManagementUtils;
 import org.apache.cxf.rs.security.jose.jwa.AlgorithmUtils;
@@ -297,6 +298,8 @@ public final class JwsUtils {
         }
         return theVerifiers;
     }
+    
+    
     public static boolean validateCriticalHeaders(JwsHeaders headers) {
         //TODO: validate JWS specific constraints
         return JoseUtils.validateCriticalHeaders(headers);
@@ -306,6 +309,7 @@ public final class JwsUtils {
         return loadSignatureProvider(PhaseInterceptorChain.getCurrentMessage(),
                                      props, headers, false);
     }
+    
     private static JwsSignatureProvider loadSignatureProvider(Message m, 
                                                              Properties props,
                                                              JwsHeaders headers,
@@ -353,6 +357,7 @@ public final class JwsUtils {
                 theSigProvider = new NoneJwsSignatureProvider();
             } else {
                 PrivateKey pk = KeyManagementUtils.loadPrivateKey(m, props, KeyOperation.SIGN);
+                
                 theSigProvider = getPrivateKeySignatureProvider(pk, signatureAlgo);
                 if (includeCert) {
                     headers.setX509Chain(KeyManagementUtils.loadAndEncodeX509CertificateOrChain(m, props));
@@ -524,10 +529,20 @@ public final class JwsUtils {
             throw new JwsException(JwsException.Error.INVALID_KEY);
         }
     }
+
+    @Deprecated
     public static JsonWebKeys loadPublicVerificationKeys(Message m, Properties props) {
+        return loadPublicVerificationKeys(m, props, true);
+    }
+
+    public static JsonWebKeys loadPublicVerificationKeys(Message m, Properties props, boolean stripPrivateParameters) {
         String storeType = props.getProperty(JoseConstants.RSSEC_KEY_STORE_TYPE);
         if ("jwk".equals(storeType)) {
-            return JwkUtils.loadPublicJwkSet(m, props);
+            List<JsonWebKey> jsonWebKeys = JwkUtils.loadJsonWebKeys(m, props, KeyOperation.SIGN, null);
+            if (jsonWebKeys == null || jsonWebKeys.isEmpty()) {
+                throw new JoseException("Error loading keys");
+            }
+            return new JsonWebKeys(stripPrivateParameters ? JwkUtils.stripPrivateParameters(jsonWebKeys) : jsonWebKeys);
         } else {
             //TODO: consider loading all the public keys in the store
             PublicKey key = KeyManagementUtils.loadPublicKey(m, props);
