@@ -504,7 +504,7 @@ public class AuthorizationGrantNegativeTest extends AbstractBusClientServerTestB
     public void testNonMatchingClientId() throws Exception {
         URL busFile = AuthorizationGrantTest.class.getResource("client.xml");
 
-        String address = "https://localhost:" + port + "/services/";
+        String address = "https://localhost:" + PORT + "/services/";
         WebClient client = WebClient.create(address, OAuth2TestUtils.setupProviders(),
                                             "alice", "security", busFile.toString());
         // Save the Cookie for the second request...
@@ -545,7 +545,7 @@ public class AuthorizationGrantNegativeTest extends AbstractBusClientServerTestB
     public void testNonMatchingClientIdBasicAuth() throws Exception {
         URL busFile = AuthorizationGrantTest.class.getResource("client.xml");
 
-        String address = "https://localhost:" + port + "/services/";
+        String address = "https://localhost:" + PORT + "/services/";
         WebClient client = WebClient.create(address, OAuth2TestUtils.setupProviders(),
                                             "alice", "security", busFile.toString());
         // Save the Cookie for the second request...
@@ -586,7 +586,7 @@ public class AuthorizationGrantNegativeTest extends AbstractBusClientServerTestB
     public void testNonMatchingClientDifferentClientIds() throws Exception {
         URL busFile = AuthorizationGrantTest.class.getResource("client.xml");
 
-        String address = "https://localhost:" + port + "/services/";
+        String address = "https://localhost:" + PORT + "/services/";
         WebClient client = WebClient.create(address, OAuth2TestUtils.setupProviders(),
                                             "alice", "security", busFile.toString());
         // Save the Cookie for the second request...
