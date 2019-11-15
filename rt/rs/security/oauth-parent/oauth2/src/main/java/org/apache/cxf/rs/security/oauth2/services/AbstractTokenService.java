@@ -73,7 +73,7 @@ public class AbstractTokenService extends AbstractOAuthService {
 
                 client = (Client)getMessageContext().get(Client.class.getName());
                 if (client == null) {
-                    client = getClient(clientId, params);
+                    client = getClient(clientId);
                 }
             } else if (principal.getName() != null) {
                 client = getClient(principal.getName());
@@ -184,7 +184,7 @@ public class AbstractTokenService extends AbstractOAuthService {
                         byte[] encodedKey = x509Cert.getEncoded();
                         byte[] clientKey = Base64Utility.decode(base64EncodedCerts.get(i));
                         if (!Arrays.equals(encodedKey, clientKey)) {
-            reportInvalidClient();    
+                            reportInvalidClient();
                         }
                     }
                     return;
