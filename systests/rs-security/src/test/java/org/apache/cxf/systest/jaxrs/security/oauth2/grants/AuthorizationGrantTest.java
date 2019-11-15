@@ -332,7 +332,7 @@ public class AuthorizationGrantTest extends AbstractBusClientServerTestBase {
         
         String address = "https://localhost:" + PORT + "/services/";
         WebClient client = WebClient.create(address, OAuth2TestUtils.setupProviders(), 
-                                            "alice", "security", busFile.toString());
+                                            "consumer-id", "this-is-a-secret", busFile.toString());
         
         // Create the SAML Assertion
         String assertion = OAuth2TestUtils.createToken(address + "token");
@@ -358,7 +358,7 @@ public class AuthorizationGrantTest extends AbstractBusClientServerTestBase {
         
         String address = "https://localhost:" + PORT + "/services/";
         WebClient client = WebClient.create(address, OAuth2TestUtils.setupProviders(), 
-                                            "alice", "security", busFile.toString());
+                                            "consumer-id", "this-is-a-secret", busFile.toString());
         
         // Create the JWT Token
         String token = OAuth2TestUtils.createToken("DoubleItSTSIssuer", "consumer-id", 
