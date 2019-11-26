@@ -59,16 +59,22 @@ public class AbstractTokenService extends AbstractOAuthService {
         SecurityContext sc = getMessageContext().getSecurityContext();
         Principal principal = sc.getUserPrincipal();
         
+        String clientId = retrieveClientId(params);
         if (principal == null) {
-            String clientId = retrieveClientId(params);
             if (clientId != null) {
                 client = getAndValidateClientFromIdAndSecret(clientId,
                                               params.getFirst(OAuthConstants.CLIENT_SECRET));
             }
         } else {
-            String clientId = retrieveClientId(params);
             if (clientId != null) {
-                client = getClient(clientId);
+                if (!clientId.equals(principal.getName())) {
+                    reportInvalidClient();
+                }
+
+                client = (Client)getMessageContext().get(Client.class.getName());
+                if (client == null) {
+                    client = getClient(clientId);
+                }
             } else if (principal.getName() != null) {
                 client = getClient(principal.getName());
             } 
@@ -94,7 +100,7 @@ public class AbstractTokenService extends AbstractOAuthService {
 
         return (TLSSessionInfo)getMessageContext().get(TLSSessionInfo.class.getName());
     }
-    
+
     protected String retrieveClientId(MultivaluedMap<String, String> params) {
         String clientId = params.getFirst(OAuthConstants.CLIENT_ID);
         if (clientId == null) {
@@ -146,6 +152,7 @@ public class AbstractTokenService extends AbstractOAuthService {
     }
     
     protected Client getClientFromTLSCertificates(SecurityContext sc, TLSSessionInfo tlsSessionInfo) {
+        
         Client client = null;
         if (tlsSessionInfo != null && StringUtils.isEmpty(sc.getAuthenticationScheme())) {
             // Pure 2-way TLS authentication
@@ -156,7 +163,7 @@ public class AbstractTokenService extends AbstractOAuthService {
         }
         return client;
     }
-    
+
     protected String getClientIdFromTLSCertificates(SecurityContext sc, TLSSessionInfo tlsInfo) {
         Certificate[] clientCerts = tlsInfo.getPeerCertificates();
         if (clientCerts != null && clientCerts.length > 0) {
@@ -165,7 +172,7 @@ public class AbstractTokenService extends AbstractOAuthService {
         }
         return null;
     }
-    
+
     protected void compareTlsCertificates(TLSSessionInfo tlsInfo, 
                                           List<String> base64EncodedCerts) {
         if (tlsInfo != null) {
@@ -220,6 +227,7 @@ public class AbstractTokenService extends AbstractOAuthService {
      * @throws {@link javax.ws.rs.WebApplicationException} if no matching Client is found
      */
     protected Client getClient(String clientId) {
+    
         if (clientId == null) {
             reportInvalidRequestError("Client ID is null");
             return null;
