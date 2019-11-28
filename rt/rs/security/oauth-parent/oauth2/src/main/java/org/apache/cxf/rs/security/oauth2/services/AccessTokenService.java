@@ -142,18 +142,20 @@ public class AccessTokenService extends AbstractOAuthService {
     private Client authenticateClientIfNeeded(MultivaluedMap<String, String> params) {
         Client client = null;
         SecurityContext sc = getMessageContext().getSecurityContext();
-        
-        if (params.containsKey(OAuthConstants.CLIENT_ID)) {
-            // both client_id and client_secret are expected in the form payload
-            client = getAndValidateClient(params.getFirst(OAuthConstants.CLIENT_ID),
-                                          params.getFirst(OAuthConstants.CLIENT_SECRET));
-        } else if (sc.getUserPrincipal() != null) {
+        Principal principal = sc.getUserPrincipal();
+        String clientId = params.getFirst(OAuthConstants.CLIENT_ID);
+
+        if (principal != null) {
             // client has already authenticated
-            Principal p = sc.getUserPrincipal();
+
+            if (clientId != null && !clientId.equals(principal.getName())) {
+                reportInvalidClient();
+            }
+
             String scheme = sc.getAuthenticationScheme();
             if (OAuthConstants.BASIC_SCHEME.equalsIgnoreCase(scheme)) {
                 // section 2.3.1
-                client = getClient(p.getName());
+                client = getClient(principal.getName());
             } else {
                 // section 2.3.2
                 // the client has authenticated itself using some other scheme
@@ -163,10 +165,14 @@ public class AccessTokenService extends AbstractOAuthService {
                 Object clientIdProp = getMessageContext().get(OAuthConstants.CLIENT_ID);
                 if (clientIdProp != null) {
                     client = getClient(clientIdProp.toString());
-                    // TODO: consider matching client.getUserSubject().getLoginName() 
+                    // TODO: consider matching client.getUserSubject().getLoginName()
                     // against principal.getName() ?
                 }
             }
+        } else if (params.containsKey(OAuthConstants.CLIENT_ID)) {
+            // both client_id and client_secret are expected in the form payload
+            client = getAndValidateClient(clientId,
+                                          params.getFirst(OAuthConstants.CLIENT_SECRET));
         } else {
             // the client id and secret are expected to be in the Basic scheme data
             String[] parts = 
@@ -182,7 +188,13 @@ public class AccessTokenService extends AbstractOAuthService {
         }
         return client;
     }
-    
+
+    private void reportInvalidClient() {
+        throw new WebApplicationException(
+            Response.status(400).entity(
+                new OAuthError(OAuthConstants.INVALID_CLIENT)).build());
+    }
+
     // Get the Client and check the id and secret
     private Client getAndValidateClient(String clientId, String clientSecret) {
         Client client = getClient(clientId);
