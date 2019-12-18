@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.AbstractDestination;
+import org.apache.cxf.transport.commons_text.StringEscapeUtils;
 
 public class FormattedServiceListWriter implements ServiceListWriter {
     private String styleSheetPath;
@@ -104,7 +105,7 @@ public class FormattedServiceListWriter implements ServiceListWriter {
         writer.write("</ul>");
         writer.write("</td><td>");
         
-        
+        absoluteURL = StringEscapeUtils.escapeHtml4(absoluteURL);
         writer.write("<span class=\"field\">Endpoint address:</span> " + "<span class=\"value\">"
                      + absoluteURL + "</span>");
         writer.write("<br/><span class=\"field\">WSDL :</span> " + "<a href=\"" + absoluteURL
@@ -157,10 +158,13 @@ public class FormattedServiceListWriter implements ServiceListWriter {
         if (absoluteURL == null) {
             return;
         }
+        absoluteURL = StringEscapeUtils.escapeHtml4(absoluteURL);
         
         writer.write("<tr><td>");
         writer.write("<span class=\"field\">Endpoint address:</span> " + "<span class=\"value\">"
                      + absoluteURL + "</span>");
+        
+        
         writer.write("<br/><span class=\"field\">WADL :</span> " + "<a href=\"" + absoluteURL
                      + "?_wadl\">" + absoluteURL + "?_wadl" + "</a>");
         addAtomLinkIfNeeded(absoluteURL, atomMap, writer);
@@ -170,6 +174,7 @@ public class FormattedServiceListWriter implements ServiceListWriter {
     private static void addAtomLinkIfNeeded(String address, Map<String, String> extMap, PrintWriter pw) {
         String atomAddress = getExtensionEndpointAddress(address, extMap);
         if (atomAddress != null) {
+            atomAddress = StringEscapeUtils.escapeHtml4(atomAddress);
             pw.write("<br/><span class=\"field\">Atom Log Feed :</span> " + "<a href=\"" + atomAddress
                      + "\">" + atomAddress + "</a>");
         }
