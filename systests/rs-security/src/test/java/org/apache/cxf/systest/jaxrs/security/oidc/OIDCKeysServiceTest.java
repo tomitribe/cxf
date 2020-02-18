@@ -22,6 +22,9 @@ import java.net.URL;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.jose.jwk.JsonWebKey;
 import org.apache.cxf.rs.security.jose.jwk.JsonWebKeys;
@@ -29,15 +32,11 @@ import org.apache.cxf.rs.security.jose.jwk.KeyType;
 import org.apache.cxf.systest.jaxrs.security.SecurityTestUtil;
 import org.apache.cxf.systest.jaxrs.security.oauth2.common.OAuth2TestUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
-
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.testutil.common.TestUtil;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Some tests for the OIDC Keys Service
@@ -172,6 +171,7 @@ public class OIDCKeysServiceTest extends AbstractBusClientServerTestBase {
         client.accept("application/json");
 
         client.path("keys/");
+//        Thread.sleep(5 * 60 * 1000);
         Response response = client.get();
         JsonWebKeys jsonWebKeys = response.readEntity(JsonWebKeys.class);
 
@@ -192,5 +192,26 @@ public class OIDCKeysServiceTest extends AbstractBusClientServerTestBase {
         }
     }
 
+    //
+    // Server implementations
+    //
 
+    public static class OIDCServer extends AbstractBusTestServerBase {
+        private static final URL SERVER_CONFIG_FILE =
+            OIDCServer.class.getResource("oidc-keys-jcache.xml");
+
+        protected void run() {
+            SpringBusFactory bf = new SpringBusFactory();
+            Bus springBus = bf.createBus(SERVER_CONFIG_FILE);
+            BusFactory.setDefaultBus(springBus);
+            setBus(springBus);
+
+            try {
+                new OIDCServer();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
 }
