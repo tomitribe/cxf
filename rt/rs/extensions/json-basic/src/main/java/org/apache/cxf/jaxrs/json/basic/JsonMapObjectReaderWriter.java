@@ -21,6 +21,7 @@ package org.apache.cxf.jaxrs.json.basic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -45,34 +46,34 @@ public class JsonMapObjectReaderWriter {
     private static final char ESCAPE = '\\';
     private static final String NULL_VALUE = "null";
     private boolean format;
-    
+
     public JsonMapObjectReaderWriter() {
-        
+
     }
     public JsonMapObjectReaderWriter(boolean format) {
         this.format = format;
     }
-    
+
     public String toJson(JsonMapObject obj) {
         return toJson(obj.asMap());
     }
-    
+
     public String toJson(Map<String, Object> map) {
         StringBuilder sb = new StringBuilder();
         toJsonInternal(new StringBuilderOutput(sb), map);
         return sb.toString();
     }
-    
+
     public String toJson(List<Object> list) {
         StringBuilder sb = new StringBuilder();
         toJsonInternal(new StringBuilderOutput(sb), list);
         return sb.toString();
     }
-    
+
     public void toJson(JsonMapObject obj, OutputStream os) {
         toJson(obj.asMap(), os);
     }
-    
+
     public void toJson(Map<String, Object> map, OutputStream os) {
         toJsonInternal(new StreamOutput(os), map);
     }
@@ -81,17 +82,17 @@ public class JsonMapObjectReaderWriter {
         out.append(OBJECT_START);
         for (Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, Object> entry = it.next();
-            out.append(DQUOTE).append(entry.getKey()).append(DQUOTE);
+            out.append(DQUOTE).append(escapeJson(entry.getKey())).append(DQUOTE);
             out.append(COLON);
             toJsonInternal(out, entry.getValue(), it.hasNext());
         }
         out.append(OBJECT_END);
     }
-    
+
     protected void toJsonInternal(Output out, Object[] array) {
         toJsonInternal(out, Arrays.asList(array));
     }
-    
+
     protected void toJsonInternal(Output out, Collection<?> coll) {
         out.append(ARRAY_START);
         formatIfNeeded(out);
@@ -101,7 +102,7 @@ public class JsonMapObjectReaderWriter {
         formatIfNeeded(out);
         out.append(ARRAY_END);
     }
-    
+
     @SuppressWarnings("unchecked")
     protected void toJsonInternal(Output out, Object value, boolean hasNext) {
         if (value == null) {
@@ -119,7 +120,12 @@ public class JsonMapObjectReaderWriter {
             if (quotesNeeded) {
                 out.append(DQUOTE);
             }
-            out.append(value.toString());
+            String valueStr = value.toString();
+            if (value instanceof String) {
+                // If the value is a String, make sure to escape quotes
+                valueStr = escapeJson(valueStr);
+            }
+            out.append(valueStr);
             if (quotesNeeded) {
                 out.append(DQUOTE);
             }
@@ -128,9 +134,9 @@ public class JsonMapObjectReaderWriter {
             out.append(COMMA);
             formatIfNeeded(out);
         }
-        
+
     }
-    
+
     private boolean checkQuotesNeeded(Object value) {
         Class<?> cls = value.getClass();
         return !(Number.class.isAssignableFrom(cls) || Boolean.class == cls
@@ -148,7 +154,7 @@ public class JsonMapObjectReaderWriter {
         JsonMapObject obj = new JsonMapObject();
         fromJson(obj, json);
         return obj;
-    }    
+    }
     public void fromJson(JsonMapObject obj, String json) {
         String theJson = json.trim();
         JsonObjectSettable settable = new JsonObjectSettable(obj);
@@ -180,6 +186,9 @@ public class JsonMapObjectReaderWriter {
             int from = json.charAt(i) == DQUOTE ? i + 1 : i;
             String name = json.substring(from, closingQuote);
             int sepIndex = json.indexOf(COLON, closingQuote + 1);
+            if (sepIndex == -1) {
+                throw new UncheckedIOException(new IOException("Error in parsing json"));
+            }
 
             int j = 1;
             while (Character.isWhitespace(json.charAt(sepIndex + j))) {
@@ -203,7 +212,7 @@ public class JsonMapObjectReaderWriter {
                 values.put(name, value);
                 i = commaIndex + 1;
             }
-            
+
         }
     }
     protected List<Object> internalFromJsonAsList(String name, String json) {
@@ -225,7 +234,7 @@ public class JsonMapObjectReaderWriter {
                 i = commaIndex;
             }
         }
-        
+
         return values;
     }
     protected Object readPrimitiveValue(String name, String json, int from, int to) {
@@ -246,7 +255,7 @@ public class JsonMapObjectReaderWriter {
             }
         }
 
-        if (value instanceof String) {
+        if (value instanceof String && ((String)value).contains("\\/")) {
             // Escape an encoded forward slash
             value = ((String) value).replace("\\/", "/");
         }
@@ -300,7 +309,7 @@ public class JsonMapObjectReaderWriter {
         public void put(String key, Object value) {
             map.put(key, value);
         }
-        
+
     }
     private static class JsonObjectSettable implements Settable {
         private JsonMapObject obj;
@@ -358,5 +367,10 @@ public class JsonMapObjectReaderWriter {
             return this;
         }
     }
-    
+
+    private String escapeJson(String value) {
+        return value.replace("\"", "\\\"")
+                .replace("\\", "\\\\");
+    }
+
 }

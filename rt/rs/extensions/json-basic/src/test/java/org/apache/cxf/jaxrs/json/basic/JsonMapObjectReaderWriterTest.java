@@ -19,8 +19,10 @@
 
 package org.apache.cxf.jaxrs.json.basic;
 
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ public class JsonMapObjectReaderWriterTest extends Assert {
         map.put("c", Collections.singletonList("cValue"));
         map.put("claim", null);
         String json = new JsonMapObjectReaderWriter().toJson(map);
-        assertEquals("{\"a\":\"aValue\",\"b\":123,\"c\":[\"cValue\"],\"claim\":null}", 
+        assertEquals("{\"a\":\"aValue\",\"b\":123,\"c\":[\"cValue\"],\"claim\":null}",
                      json);
     }
     @Test
@@ -136,6 +138,25 @@ public class JsonMapObjectReaderWriterTest extends Assert {
         String kid = (String)map.get("kid");
         String expectedKid = "4pZbe4shQQGzZXHbeIlbDvmHOc1/H6jH6oBk3nUrcZE=";
         assertEquals(expectedKid, kid);
+    }
+
+    @Test(expected = UncheckedIOException.class)
+    public void testMalformedInput() throws Exception {
+        JsonMapObjectReaderWriter jsonMapObjectReaderWriter = new JsonMapObjectReaderWriter();
+        String s = "{\"nonce\":\"\",:V\"'";
+        jsonMapObjectReaderWriter.fromJson(s);
+    }
+
+    @Test
+    public void testEscapeDoubleQuotes() throws Exception {
+        JsonMapObjectReaderWriter jsonMapObjectReaderWriter = new JsonMapObjectReaderWriter();
+        Map<String, Object> content = new HashMap<>();
+        content.put("userInput", "a\",\"exp\":9999999999,\"b\":\"x");
+        String json = jsonMapObjectReaderWriter.toJson(content);
+
+        Map<String, Object> map = jsonMapObjectReaderWriter.fromJson(json);
+        assertEquals(1, map.size());
+        assertEquals("userInput", map.keySet().iterator().next());
     }
 
 }
